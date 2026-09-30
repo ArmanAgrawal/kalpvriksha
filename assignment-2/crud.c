@@ -10,115 +10,112 @@ typedef struct {
     int age;
 } User;
 
-void createFile() {
-    FILE *fp = fopen("users.txt", "a");
-    if (fp) fclose(fp);
-    else printf("Error: Unable to create file.\n");
-}
-
-void createUser() {
+void addUser() {
     User user, temp;
     printf("Enter ID: "); scanf("%d", &user.id);
     printf("Enter Name: "); scanf("%s", user.name);
     printf("Enter Age: "); scanf("%d", &user.age);
 
     FILE *fp = fopen("users.txt", "r");
-    if (fp) {
         while (fscanf(fp, "%d %s %d", &temp.id, temp.name, &temp.age) == 3) {
             if (temp.id == user.id) {
-                printf("Error: ID already exists.\n");
+                printf("Error: ID already exists so try with different id.\n");
                 fclose(fp);
                 return;
             }
         }
         fclose(fp);
-    }
 
     fp = fopen("users.txt", "a");
-    if (!fp) { printf("Error: Unable to open file.\n"); return; }
     fprintf(fp, "%d %s %d\n", user.id, user.name, user.age);
     fclose(fp);
-    printf("User added successfully.\n");
+    printf("User added.\n");
 }
 
-void readUsers() {
+void showUsers() {
     FILE *fp = fopen("users.txt", "r");
     if (!fp) { printf("Error: File not found.\n"); return; }
 
     User user;
-    int found = 0;
-    printf("\n----- Users -----\n");
+    int get = 0;
+    printf("\n Users \n");
     while (fscanf(fp, "%d %s %d", &user.id, user.name, &user.age) == 3) {
         printf("ID: %d  Name: %s  Age: %d\n", user.id, user.name, user.age);
-        found = 1;
+        get = 1;
     }
-    if (!found) printf("No users found.\n");
+    if (!get) printf("Users Not found.\n");
     fclose(fp);
 }
 
 void updateUser() {
-    int id, found = 0;
-    printf("Enter ID to update: "); scanf("%d", &id);
+    int id, get = 0;
+    printf("Enter ID: "); scanf("%d", &id);
 
-    FILE *fp = fopen("users.txt", "r");
-    if (!fp) { printf("Error: File not found.\n"); return; }
+    FILE *fpoi = fopen("users.txt", "r");
     FILE *temp = fopen("temp.txt", "w");
-    if (!temp) { printf("Error: Unable to create temporary file.\n"); fclose(fp); return; }
 
     User user;
-    while (fscanf(fp, "%d %s %d", &user.id, user.name, &user.age) == 3) {
+    while (fscanf(fpoi, "%d %s %d", &user.id, user.name, &user.age) == 3) {
         if (user.id == id) {
-            found = 1;
+            get = 1;
             printf("Enter new name: "); scanf("%s", user.name);
             printf("Enter new age: "); scanf("%d", &user.age);
         }
         fprintf(temp, "%d %s %d\n", user.id, user.name, user.age);
     }
-    fclose(fp);
+    fclose(fpoi);
     fclose(temp);
 
-    if (!found) { remove("temp.txt"); printf("Error: User not found.\n"); return; }
+    if (!get) { 
+        remove("temp.txt"); 
+        printf("Error: User not found.\n"); 
+        return; 
+    }
     remove("users.txt");
     rename("temp.txt", "users.txt");
-    printf("User updated successfully.\n");
+    printf("User updated.\n");
 }
 
 void deleteUser() {
-    int id, found = 0;
+    int id, get = 0;
     printf("Enter ID to delete: "); scanf("%d", &id);
 
     FILE *fp = fopen("users.txt", "r");
-    if (!fp) { printf("Error: File not found.\n"); return; }
     FILE *temp = fopen("temp.txt", "w");
-    if (!temp) { printf("Error: Unable to create temporary file.\n"); fclose(fp); return; }
 
     User user;
     while (fscanf(fp, "%d %s %d", &user.id, user.name, &user.age) == 3) {
-        if (user.id == id) { found = 1; continue; }
+        if (user.id == id) { get = 1; continue; }
         fprintf(temp, "%d %s %d\n", user.id, user.name, user.age);
     }
     fclose(fp);
     fclose(temp);
 
-    if (!found) { remove("temp.txt"); printf("Error: User not found.\n"); return; }
+    if (!get) { 
+        remove("temp.txt"); 
+        printf("Error: User not found.\n"); 
+        return;
+     }
     remove("users.txt");
     rename("temp.txt", "users.txt");
-    printf("User deleted successfully.\n");
+    printf("User deleted.\n");
 }
 
 int main() {
     int choice;
-    createFile();
+        FILE *fp = fopen("users.txt", "a");
+    if (fp) fclose(fp);
+    else printf("Error: Unable to create file.\n");
     while (1) {
         printf("\n===== User Management System =====\n1. Create User\n2. Read Users\n3. Update User\n4. Delete User\n5. Exit\nEnter your choice: ");
         scanf("%d", &choice);
 
         switch (choice) {
-            case 1: createUser(); break;
-            case 2: readUsers(); break;
+            case 1: addUser(); break;
+            case 2: showUsers(); break;
             case 3: updateUser(); break;
             case 4: deleteUser(); break;
-            case 5: printf("Exiting program...\n"); return 0;
+            case 5: printf("Exiting program\n"); return 0;
             default: printf("Invalid choice.\n");
         }
     }
