@@ -95,7 +95,7 @@ void evaluate(char *expr) {
 
 int main(void) {
     char input[MAX];
-
+    printf("Enter expression: ");
     if (fgets(input, sizeof(input), stdin)) {
         size_t len = strlen(input);
         if (len > 0 && input[len - 1] == '\n') {
