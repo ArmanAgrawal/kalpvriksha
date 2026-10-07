@@ -16,25 +16,33 @@ void addUser()
     User user, temp;
     printf("Enter ID: ");
     scanf("%d", &user.id);
+    getchar();
     printf("Enter Name: ");
-    scanf("%s", user.name);
+    scanf("%49[^\n]", user.name);
+    getchar();
     printf("Enter Age: ");
     scanf("%d", &user.age);
+    getchar();
 
     FILE *fp = fopen("users.txt", "r");
-    while (fscanf(fp, "%d %s %d", &temp.id, temp.name, &temp.age) == 3)
+    char line[200];
+
+    while (fgets(line, sizeof(line), fp))
     {
-        if (temp.id == user.id)
+        if (sscanf(line, "%d,%49[^,],%d", &temp.id, temp.name, &temp.age) == 3)
         {
-            printf("Error: ID already exists so try with different id.\n");
-            fclose(fp);
-            return;
+            if (temp.id == user.id)
+            {
+                printf("Error: ID already exists so try with different id.\n");
+                fclose(fp);
+                return;
+            }
         }
     }
     fclose(fp);
 
     fp = fopen("users.txt", "a");
-    fprintf(fp, "%d %s %d\n", user.id, user.name, user.age);
+    fprintf(fp, "%d,%s,%d\n", user.id, user.name, user.age);
     fclose(fp);
     printf("User added.\n");
 }
@@ -51,10 +59,15 @@ void showUsers()
     User user;
     int get = 0;
     printf("\n Users \n");
-    while (fscanf(fp, "%d %s %d", &user.id, user.name, &user.age) == 3)
+    char line[200];
+
+    while (fgets(line, sizeof(line), fp))
     {
-        printf("ID: %d  Name: %s  Age: %d\n", user.id, user.name, user.age);
-        get = 1;
+        if (sscanf(line, "%d,%49[^,],%d", &user.id, user.name, &user.age) == 3)
+        {
+            printf("ID: %d  Name: %s  Age: %d\n", user.id, user.name, user.age);
+            get = 1;
+        }
     }
     if (!get)
         printf("Users Not found.\n");
@@ -71,17 +84,26 @@ void updateUser()
     FILE *temp = fopen("temp.txt", "w");
 
     User user;
-    while (fscanf(fpoi, "%d %s %d", &user.id, user.name, &user.age) == 3)
+    char line[200];
+
+    while (fgets(line, sizeof(line), fpoi))
     {
-        if (user.id == id)
+        if (sscanf(line, "%d,%49[^,],%d", &user.id, user.name, &user.age) == 3)
         {
-            get = 1;
-            printf("Enter new name: ");
-            scanf("%s", user.name);
-            printf("Enter new age: ");
-            scanf("%d", &user.age);
+            if (user.id == id)
+            {
+                get = 1;
+                printf("Enter new name: ");
+                scanf(" %49[^\n]", user.name);
+                printf("Enter new age: ");
+                scanf("%d", &user.age);
+            }
+            fprintf(temp, "%d,%s,%d\n", user.id, user.name, user.age);
         }
-        fprintf(temp, "%d %s %d\n", user.id, user.name, user.age);
+        else
+        {
+            fprintf(temp, "%s", line);
+        }
     }
     fclose(fpoi);
     fclose(temp);
@@ -102,19 +124,29 @@ void deleteUser()
     int id, get = 0;
     printf("Enter ID to delete: ");
     scanf("%d", &id);
+    getchar();
 
     FILE *fp = fopen("users.txt", "r");
     FILE *temp = fopen("temp.txt", "w");
 
     User user;
-    while (fscanf(fp, "%d %s %d", &user.id, user.name, &user.age) == 3)
+    char line[200];
+
+    while (fgets(line, sizeof(line), fp))
     {
-        if (user.id == id)
+        if (sscanf(line, "%d,%49[^,],%d", &user.id, user.name, &user.age) == 3)
         {
-            get = 1;
-            continue;
+            if (user.id == id)
+            {
+                get = 1;
+                continue;
+            }
+            fprintf(temp, "%d,%s,%d\n", user.id, user.name, user.age);
         }
-        fprintf(temp, "%d %s %d\n", user.id, user.name, user.age);
+        else
+        {
+            fprintf(temp, "%s", line);
+        }
     }
     fclose(fp);
     fclose(temp);
@@ -138,11 +170,17 @@ int main()
         fclose(fp);
     else
         printf("Error: Unable to create file.\n");
+
     while (1)
     {
         printf("\n===== User Management System =====\n1. Create User\n2. Read Users\n3. Update User\n4. Delete User\n5. Exit\nEnter your choice: ");
-        scanf("%d", &choice);
-
+        if (scanf("%d", &choice) != 1)
+        {
+            printf("Invalid choice. Please enter a number.\n");
+            while (getchar() != '\n')
+                ;
+            continue;
+        }
         switch (choice)
         {
         case 1:
