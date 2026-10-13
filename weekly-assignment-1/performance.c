@@ -1,11 +1,14 @@
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
 #define MAX_STUDENTS 100
 #define MAX_SIZE 50
 #define MAX_SUBJECT 3
 
-struct Student
-{
+int studentCount = 0;
+
+struct Student {
     int rollnumber;
     char name[MAX_SIZE];
     float marks[MAX_SUBJECT];
@@ -18,25 +21,24 @@ void calculatePerformance(struct Student *s);
 char assignGrade(float average);
 void printPerformancePattern(char grade);
 void printRollNumbersRecursive(struct Student students[], int index, int count);
+void trimSpaces(char str[]);
+void studentsInput(struct Student students[], int n);
 
 int main()
 {
+    printf("Enter the number of students (1-100): ");
     int n;
     while (scanf("%d", &n) != 1 || n < 1 || n > 100){
         while (getchar() != '\n');
         printf("Enter a valid number between 1 to 100 \n");
     }
-    getchar();
-    struct Student students[100];
-    for (int i = 0; i < n; i++){
-        scanf("%d", &students[i].rollnumber);
+    studentCount = n;
+    while (getchar() != '\n');
+    struct Student students[MAX_STUDENTS];
+    
+    studentsInput(students, n);
 
-        scanf("%49[^0-9]", students[i].name);
 
-        scanf("%f %f %f", &students[i].marks[0], &students[i].marks[1], &students[i].marks[2]);
-        getchar();
-        calculatePerformance(&students[i]);
-    }
     for (int i = 0; i < n; i++){
         printf("Roll: %d\n", students[i].rollnumber);
         printf("Name: %s\n", students[i].name);
@@ -60,6 +62,54 @@ int main()
 
     return 0;
 }
+
+void studentsInput(struct Student students[], int n) {
+    char inputDetails[256];
+
+    for (int i = 0; i < n; i++) {
+        while (1) {
+            printf("\nEnter details for student %d (RollNo Name Mark1 Mark2 Mark3): ", i + 1);
+            if (fgets(inputDetails, sizeof(inputDetails), stdin) == NULL) {
+                continue;
+            }
+
+            int roll;
+            char tempName[MAX_SIZE];
+            float m1, m2, m3;
+
+            if (sscanf(inputDetails, "%d %49[a-zA-Z ] %f %f %f", &roll, tempName, &m1, &m2, &m3) != 5) {
+                printf("Invalid input enter numeric roll, name, and 3 marks.\n");
+                continue;
+            }
+
+            int unique = 1;
+            for (int j = 0; j < i; j++) {
+                if (students[j].rollnumber == roll) {
+                    printf("Roll number %d already exists.\n", roll);
+                    unique = 0;
+                    break;
+                }
+            }
+            if (!unique) continue;
+
+            if (m1 < 0.0f || m1 > 100.0f || m2 < 0.0f || m2 > 100.0f || m3 < 0.0f || m3 > 100.0f) {
+                printf("Marks must be between 0 and 100.\n");
+                continue;
+            }
+
+            students[i].rollnumber = roll;
+            trimSpaces(tempName);
+            strcpy(students[i].name, tempName);
+            students[i].marks[0] = m1;
+            students[i].marks[1] = m2;
+            students[i].marks[2] = m3;
+
+            calculatePerformance(&students[i]);
+            break;
+        }
+    }
+}
+
 
 void calculatePerformance(struct Student *s){
     float sum = 0.0f;
@@ -110,4 +160,22 @@ void printRollNumbersRecursive(struct Student students[], int index, int count){
     }
     printf("%d ", students[index].rollnumber);
     printRollNumbersRecursive(students, index + 1, count);
+}
+
+
+void trimSpaces(char str[]){
+    int s = 0;
+    int e = strlen(str)-1;
+    
+    while(str[s]!= '\0' && isspace(str[s])){
+        s++;
+    }
+    while(e>=s && isspace(str[e])){
+        e--;
+    }
+    int i = 0;
+    while(s<=e){
+        str[i++] = str[s++];
+    }
+    str[i] = '\0';
 }
