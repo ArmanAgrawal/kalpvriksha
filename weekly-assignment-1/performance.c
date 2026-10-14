@@ -21,7 +21,6 @@ void calculatePerformance(struct Student *s);
 char assignGrade(float average);
 void printPerformancePattern(char grade);
 void printRollNumbersRecursive(struct Student students[], int index, int count);
-void trimSpaces(char str[]);
 void studentsInput(struct Student students[], int n);
 
 int main()
@@ -75,9 +74,9 @@ void studentsInput(struct Student students[], int n) {
 
             int roll;
             char tempName[MAX_SIZE];
-            float m1, m2, m3;
+            float marks1, marks2, marks3;
 
-            if (sscanf(inputDetails, "%d %49[a-zA-Z ] %f %f %f", &roll, tempName, &m1, &m2, &m3) != 5) {
+            if (sscanf(inputDetails, "%d %49[a-zA-Z ] %f %f %f", &roll, tempName, &marks1, &marks2, &marks3) != 5) {
                 printf("Invalid input enter numeric roll, name, and 3 marks.\n");
                 continue;
             }
@@ -92,17 +91,16 @@ void studentsInput(struct Student students[], int n) {
             }
             if (!unique) continue;
 
-            if (m1 < 0.0f || m1 > 100.0f || m2 < 0.0f || m2 > 100.0f || m3 < 0.0f || m3 > 100.0f) {
+            if (marks1 < 0.0f || marks1 > 100.0f || marks2 < 0.0f || marks2 > 100.0f || marks3 < 0.0f || marks3 > 100.0f) {
                 printf("Marks must be between 0 and 100.\n");
                 continue;
             }
 
             students[i].rollnumber = roll;
-            trimSpaces(tempName);
             strcpy(students[i].name, tempName);
-            students[i].marks[0] = m1;
-            students[i].marks[1] = m2;
-            students[i].marks[2] = m3;
+            students[i].marks[0] = marks1;
+            students[i].marks[1] = marks2;
+            students[i].marks[2] = marks3;
 
             calculatePerformance(&students[i]);
             break;
@@ -160,22 +158,4 @@ void printRollNumbersRecursive(struct Student students[], int index, int count){
     }
     printf("%d ", students[index].rollnumber);
     printRollNumbersRecursive(students, index + 1, count);
-}
-
-
-void trimSpaces(char str[]){
-    int s = 0;
-    int e = strlen(str)-1;
-    
-    while(str[s]!= '\0' && isspace(str[s])){
-        s++;
-    }
-    while(e>=s && isspace(str[e])){
-        e--;
-    }
-    int i = 0;
-    while(s<=e){
-        str[i++] = str[s++];
-    }
-    str[i] = '\0';
 }
